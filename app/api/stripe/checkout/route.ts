@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 });
 
-export async function POST(req: Request) {
+export const POST = async (req: Request) => {
   try {
     const { price, quantity = 1, success_url, cancel_url } = await req.json();
 
