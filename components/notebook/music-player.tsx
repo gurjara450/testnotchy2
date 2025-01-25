@@ -32,7 +32,7 @@ let globalAudio: HTMLAudioElement | null = null;
 let globalIsPlaying = false;
 let globalTrackIndex = 0;
 let globalIsMuted = false;
-let globalVolume = 0.5;
+const globalVolume = 0.5;
 
 const buttonAnimation = {
   hover: {

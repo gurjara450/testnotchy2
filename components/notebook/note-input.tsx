@@ -145,16 +145,6 @@ const recordIconAnimation = {
   tap: { scale: 0.9 }
 };
 
-// Add interfaces for exam data
-interface Question {
-  type: 'mcq' | 'written' | 'flashcard';
-  question: string;
-  correctAnswer: string;
-  options?: string[];
-  explanation?: string;
-  studentAnswer?: string;
-}
-
 // Add the showErrorToast function after the animations
 const showErrorToast = (title: string, message: string, icon = <AlertCircle />) => {
   toast.custom((t) => (
@@ -749,9 +739,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
               </FloatingPanel.Label>
               <FloatingPanel.Textarea 
                 id="note-input"
-                className="min-h-[200px] p-3 text-base bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 dark:text-gray-100 resize-none outline-none transition-all duration-200 whitespace-pre-wrap font-mono"
-                style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-                spellCheck="false"
+                className="min-h-[200px] p-3 text-base bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 dark:text-gray-100 resize-none outline-none transition-all duration-200 whitespace-pre-wrap break-words font-mono [spellcheck:false]"
               />
               <FloatingPanel.Footer className="mt-4 flex items-center justify-between">
                 <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-2 border border-gray-200 dark:border-gray-700">

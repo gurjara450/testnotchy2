@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +46,7 @@ import { IconSquareRoundedX } from "@tabler/icons-react";
 import StatsModal from "@/components/notebook/stats-modal";
 import Image from "next/image";
 import { HoverBorderGradient } from "../../components/ui/hover-border-gradient";
+import { useRouter } from "next/navigation";
 
 // Notebook types available
 type NotebookType = "blank" | "math" | "history" | "science" | "language";
