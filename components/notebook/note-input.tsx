@@ -468,7 +468,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
       setSelectedAnswers({});
       toast.dismiss(loadingToastId);
       showSuccessToast("MCQs generated successfully!", <BookOpen />);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error generating MCQs:", error);
       if (loadingToastId) toast.dismiss(loadingToastId);
       showErrorToast(
@@ -520,7 +520,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
       setIsFlipped(false);
       toast.dismiss(loadingToastId);
       showSuccessToast("Flashcards generated successfully!", <FlipHorizontal />);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error generating flashcards:", error);
       if (loadingToastId) toast.dismiss(loadingToastId);
       showErrorToast(
@@ -623,7 +623,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
 
       const chunks: Blob[] = [];
       
-      processor.onaudioprocess = async (e) => {
+      processor.onaudioprocess = async (e: AudioProcessingEvent) => {
         const inputData = e.inputBuffer.getChannelData(0);
         const audioBlob = new Blob([inputData], { type: 'audio/wav' });
         chunks.push(audioBlob);
@@ -645,7 +645,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
             if (data.text) {
               toast.success(data.text);
             }
-          } catch (error) {
+          } catch (error: unknown) {
             console.error('Error sending audio:', error);
             showErrorToast(
               "Processing Error",
@@ -661,7 +661,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
       setAudioContext(context);
       setIsRecording(true);
       showSuccessToast('Started recording', <Mic />);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error starting recording:', error);
       showErrorToast(
         "Microphone Error",
@@ -1456,7 +1456,7 @@ export function NoteInput({ onAddNote, sourceFile, userId, selectedSources = [] 
             Upgrade for AI Features
           </Button>
         )}
-
+        
         <style jsx global>{`
           @keyframes shimmer {
             0% {

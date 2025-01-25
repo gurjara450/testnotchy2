@@ -289,16 +289,22 @@ const DynamicIslandContainer = ({ children }: { children: ReactNode }) => {
   )
 }
 
+type ScreenSize = "mobile" | "tablet" | "desktop"
+
+type DynamicIslandProps = {
+  children: ReactNode
+  id: string
+  style?: React.CSSProperties
+  className?: string
+}
+
 const DynamicIsland = ({
   children,
   id,
   ...props
-}: {
-  children: ReactNode
-  id: string
-}) => {
+}: DynamicIslandProps) => {
   const willChange = useWillChange()
-  const [screenSize, setScreenSize] = useState("desktop")
+  const [screenSize, setScreenSize] = useState<ScreenSize>("desktop")
 
   useEffect(() => {
     const handleResize = () => {
@@ -332,7 +338,7 @@ const DynamicIsland = ({
 
 const calculateDimensions = (
   size: SizePresets,
-  screenSize: string,
+  screenSize: ScreenSize,
   currentSize: Preset
 ): { width: string; height: number } => {
   const isMassiveOnMobile = size === "massive" && screenSize === "mobile"
@@ -350,19 +356,22 @@ const calculateDimensions = (
   return { width: `${width}px`, height: currentSize.aspectRatio * width }
 }
 
+type DynamicIslandContentProps = {
+  children: React.ReactNode
+  id: string
+  willChange: ReturnType<typeof useWillChange>
+  screenSize: ScreenSize
+  style?: React.CSSProperties
+  className?: string
+}
+
 const DynamicIslandContent = ({
   children,
   id,
   willChange,
   screenSize,
   ...props
-}: {
-  children: React.ReactNode
-  id: string
-  willChange: ReturnType<typeof useWillChange>
-  screenSize: string
-  [key: string]: unknown
-}) => {
+}: DynamicIslandContentProps) => {
   const { state, presets } = useDynamicIslandSize()
   const currentSize = presets[state.size]
 
