@@ -1,19 +1,24 @@
 import { LucideIcon } from "lucide-react";
 
-export interface Widget {
+export interface WidgetProps {
+  id: string;
+  // Add any common widget props here
+}
+
+export interface Widget<T extends WidgetProps = WidgetProps> {
   id: string;
   type: string;
   title: string;
   description: string;
   icon: LucideIcon;
   color: string;
-  component: React.ComponentType<any>;
-  defaultProps?: Record<string, any>;
+  component: React.ComponentType<T>;
+  defaultProps?: Partial<T>;
 }
 
-export interface WidgetInstance {
+export interface WidgetInstance<T extends WidgetProps = WidgetProps> {
   id: string;
   widgetType: string;
-  props?: Record<string, any>;
+  props?: Partial<T>;
   position: number;
 } 
