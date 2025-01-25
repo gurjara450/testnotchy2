@@ -17,7 +17,6 @@ type NoteCardProps = {
   onDelete: (id: number) => void;
   onPin: (id: number) => void;
   onPreview: (note: Note) => void;
-  onUpdateStyle?: (id: number, updates: Partial<Note>) => void;
 };
 
 const backgroundStyles = {
@@ -38,7 +37,7 @@ const fontStyles = {
   patrick: 'font-patrick-hand',
 };
 
-const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onPin, onPreview, onUpdateStyle }) => {
+const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onPin, onPreview }) => {
   const id = React.useId();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);

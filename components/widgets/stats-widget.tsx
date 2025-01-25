@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
+import { useState } from "react";
 
 interface StudyStats {
   totalFocusTime: number;
@@ -11,21 +12,12 @@ interface StudyStats {
 }
 
 export function StatsWidget() {
-  const [studyStats, setStudyStats] = React.useState<StudyStats>(() => {
-    const saved = localStorage.getItem("study-stats");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return {
-        ...parsed,
-        lastStudyDate: parsed.lastStudyDate ? new Date(parsed.lastStudyDate) : null
-      };
-    }
-    return {
-      totalFocusTime: 0,
-      completedTasks: 0,
-      streakDays: 0,
-      lastStudyDate: null
-    };
+  const [studyStats] = useState({
+    totalTime: 0,
+    sessionsCompleted: 0,
+    averageSessionLength: 0,
+    longestStreak: 0,
+    currentStreak: 0,
   });
 
   React.useEffect(() => {

@@ -1,31 +1,33 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { createNoise3D } from "simplex-noise";
+
+export interface WavyBackgroundProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  className?: string;
+  containerClassName?: string;
+  backgroundFill?: string;
+  lineColor?: string;
+  waveWidth?: number;
+  waveOpacity?: number;
+  blur?: number;
+  speed?: "slow" | "fast";
+}
 
 export const WavyBackground = ({
   children,
   className,
   containerClassName,
-  colors,
-  waveWidth,
   backgroundFill,
+  lineColor = "white",
+  waveWidth,
+  waveOpacity,
   blur = 10,
   speed = "fast",
-  waveOpacity = 0.5,
   ...props
-}: {
-  children?: React.ReactNode;
-  className?: string;
-  containerClassName?: string;
-  colors?: string[];
-  waveWidth?: number;
-  backgroundFill?: string;
-  blur?: number;
-  speed?: "slow" | "fast";
-  waveOpacity?: number;
-  [key: string]: unknown;
-}) => {
+}: WavyBackgroundProps) => {
   const noise = createNoise3D();
   let w = 0,
     h = 0,
@@ -46,7 +48,7 @@ export const WavyBackground = ({
     }
   };
 
-  const init = () => {
+  const init = useCallback(() => {
     canvas = canvasRef.current;
     if (!canvas) return;
     ctx = canvas.getContext("2d");
@@ -54,7 +56,7 @@ export const WavyBackground = ({
 
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = lineColor;
     nt = 0;
     ctx.lineWidth = waveWidth || 50;
     
@@ -62,15 +64,8 @@ export const WavyBackground = ({
       ctx.fillStyle = backgroundFill;
       ctx.fillRect(0, 0, w, h);
     }
-  };
+  }, [backgroundFill, lineColor, waveWidth]);
 
-  const waveColors = colors ?? [
-    "#38bdf8",
-    "#818cf8",
-    "#c084fc",
-    "#e879f9",
-    "#22d3ee",
-  ];
   const drawWave = (n: number) => {
     if (!ctx) return;
     nt += getSpeed();
@@ -85,14 +80,14 @@ export const WavyBackground = ({
     }
   };
 
-  const render = () => {
+  const render = useCallback(() => {
     if (!ctx) return;
     ctx.fillStyle = backgroundFill || "black";
     ctx.globalAlpha = waveOpacity || 0.5;
     ctx.fillRect(0, 0, w, h);
     drawWave(5);
     requestAnimationFrame(render);
-  };
+  }, [backgroundFill, waveOpacity]);
 
   useEffect(() => {
     init();

@@ -18,6 +18,10 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+type ToasterProps = {
+  toasts: ToasterToast[]
+}
+
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",

@@ -1,11 +1,5 @@
 import { useRef, useEffect } from "react";
 
-interface GradProps {
-  x: number;
-  y: number;
-  z: number;
-}
-
 class Grad {
   x: number;
   y: number;

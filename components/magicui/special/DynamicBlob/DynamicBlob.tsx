@@ -359,9 +359,9 @@ const DynamicIslandContent = ({
 }: {
   children: React.ReactNode
   id: string
-  willChange: any
+  willChange: ReturnType<typeof useWillChange>
   screenSize: string
-  [key: string]: any
+  [key: string]: unknown
 }) => {
   const { state, presets } = useDynamicIslandSize()
   const currentSize = presets[state.size]

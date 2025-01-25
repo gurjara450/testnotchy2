@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, MotionProps, Variants } from "motion/react";
 import { ElementType } from "react";
+import { useRef, useEffect } from "react";
+import { useAnimate } from "framer-motion";
 
 type AnimationType = "text" | "word" | "character" | "line";
 type AnimationVariant =
@@ -300,21 +302,52 @@ const defaultItemAnimationVariants: Record<
   },
 };
 
+const fadeIn = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+  },
+};
+
+const slideIn = {
+  hidden: {
+    opacity: 0,
+    x: 20,
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+  },
+};
+
+const scaleIn = {
+  hidden: {
+    opacity: 0,
+    scale: 0,
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+  },
+};
+
 export function TextAnimate({
   children,
-  delay = 0,
-  duration = 0.3,
-  variants,
   className,
   segmentClassName,
   as: Component = "p",
   startOnView = true,
-  once = false,
   by = "word",
   animation = "fadeIn",
   ...props
 }: TextAnimateProps) {
   const MotionComponent = motion.create(Component);
+  const animationElements = useRef<HTMLSpanElement[]>([]);
+  const [scope, animate] = useAnimate();
 
   // Use provided variants or default variants based on animation type
   const finalVariants = animation
@@ -356,9 +389,49 @@ export function TextAnimate({
       break;
   }
 
+  useEffect(() => {
+    if (animation === "none") return;
+    
+    animationElements.current.forEach((element, i) => {
+      animate(element, {
+        opacity: [0, 1],
+        y: [20, 0],
+      }, {
+        delay: i * 0.1,
+        duration: 0.5,
+      });
+    });
+  }, [animation, animate]);
+
+  const renderWords = () => {
+    const elements: React.ReactNode[] = [];
+    segments.forEach((segment, i) => {
+      elements.push(
+        <motion.span
+          ref={(el) => {
+            if (el) {
+              animationElements.current.push(el);
+            }
+          }}
+          key={`${by}-${segment}-${i}`}
+          variants={finalVariants.item}
+          custom={i * staggerTimings[by]}
+          className={cn(
+            by === "line" ? "block" : "inline-block whitespace-pre",
+            segmentClassName,
+          )}
+        >
+          {segment}
+        </motion.span>
+      );
+    });
+    return elements;
+  };
+
   return (
     <AnimatePresence mode="popLayout">
       <MotionComponent
+        ref={scope}
         variants={finalVariants.container}
         initial="hidden"
         whileInView={startOnView ? "show" : undefined}
@@ -367,19 +440,7 @@ export function TextAnimate({
         className={cn("whitespace-pre-wrap", className)}
         {...props}
       >
-        {segments.map((segment, i) => (
-          <motion.span
-            key={`${by}-${segment}-${i}`}
-            variants={finalVariants.item}
-            custom={i * staggerTimings[by]}
-            className={cn(
-              by === "line" ? "block" : "inline-block whitespace-pre",
-              segmentClassName,
-            )}
-          >
-            {segment}
-          </motion.span>
-        ))}
+        {renderWords()}
       </MotionComponent>
     </AnimatePresence>
   );

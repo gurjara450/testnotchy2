@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FlipHorizontal, ArrowLeft, ArrowRight, Shuffle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Shuffle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface Flashcard {
