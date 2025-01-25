@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function PaymentSuccessPage() {
-  const router = useRouter();
   const { user } = useUser();
   const searchParams = useSearchParams();
 
