@@ -135,7 +135,7 @@ export async function POST(req: Request) {
 
     // Array to store all document chunks
     let allDocuments: Document[] = [];
-    let allSummaries: string[] = [];
+    const allSummaries: string[] = [];
 
     // Process each PDF file
     for (const fileKeyToUse of fileKeysToProcess) {

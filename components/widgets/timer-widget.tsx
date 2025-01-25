@@ -7,7 +7,6 @@ import { toast } from "react-hot-toast";
 import { GeistMono } from 'geist/font/mono';
 
 export function TimerWidget() {
-  const [timerDuration] = React.useState(25 * 60); // 25 minutes in seconds
   const [timeRemaining, setTimeRemaining] = React.useState<number | null>(null);
   const [isTimerRunning, setIsTimerRunning] = React.useState(false);
   const [timerType, setTimerType] = React.useState<"focus" | "break">("focus");

@@ -10,7 +10,10 @@ export const Card = React.memo(
     hovered,
     setHovered,
   }: {
-    card: any;
+    card: {
+      title: string;
+      src: string;
+    };
     index: number;
     hovered: number | null;
     setHovered: React.Dispatch<React.SetStateAction<number | null>>;

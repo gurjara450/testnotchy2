@@ -117,7 +117,7 @@ export async function POST(req: Request) {
     // Delete existing vectors for this file if any
     try {
       await namespace.deleteAll();
-    } catch (error) {
+    } catch {
       console.log("No existing vectors to delete");
     }
 

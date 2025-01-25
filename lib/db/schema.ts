@@ -11,7 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 // Enum for roles in the system
-export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
+export const userSystemEnum = pgEnum("user_system_enum", ["system", "user", "assistant"]);
 
 // Enum for note background styles
 export const noteBackgroundEnum = pgEnum("note_background_enum", ["plain", "ruled", "dotted", "grid"]);
