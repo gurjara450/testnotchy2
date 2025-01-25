@@ -15,7 +15,7 @@ interface Sparkle {
   lifespan: number;
 }
 
-interface SparklesTextProps {
+interface SparklesTextProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * @default <div />
    * @type ReactElement
