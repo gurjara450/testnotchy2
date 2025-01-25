@@ -17,7 +17,8 @@ type AnimationVariant =
   | "slideLeft"
   | "slideRight"
   | "scaleUp"
-  | "scaleDown";
+  | "scaleDown"
+  | "none";
 
 interface TextAnimateProps extends MotionProps {
   /**
@@ -108,14 +109,11 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, y: 20 },
-      show: (delay: number) => ({
+      show: {
         opacity: 1,
         y: 0,
-        transition: {
-          delay,
-          duration: 0.3,
-        },
-      }),
+        transition: { duration: 0.3 },
+      },
       exit: {
         opacity: 0,
         y: 20,
@@ -146,7 +144,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, filter: "blur(10px)", y: 20 },
-      show: (delay: number) => ({
+      show: {
         opacity: 1,
         filter: "blur(0px)",
         y: 0,
@@ -155,7 +153,7 @@ const defaultItemAnimationVariants: Record<
           opacity: { duration: 0.4 },
           filter: { duration: 0.3 },
         },
-      }),
+      },
       exit: {
         opacity: 0,
         filter: "blur(10px)",
@@ -172,7 +170,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, filter: "blur(10px)", y: -20 },
-      show: (delay: number) => ({
+      show: {
         opacity: 1,
         filter: "blur(0px)",
         y: 0,
@@ -181,7 +179,7 @@ const defaultItemAnimationVariants: Record<
           opacity: { duration: 0.4 },
           filter: { duration: 0.3 },
         },
-      }),
+      },
     },
   },
   slideUp: {
@@ -300,38 +298,9 @@ const defaultItemAnimationVariants: Record<
       },
     },
   },
-};
-
-const fadeIn = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
-};
-
-const slideIn = {
-  hidden: {
-    opacity: 0,
-    x: 20,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
-};
-
-const scaleIn = {
-  hidden: {
-    opacity: 0,
-    scale: 0,
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
+  none: {
+    container: defaultContainerVariants,
+    item: defaultItemVariants,
   },
 };
 
