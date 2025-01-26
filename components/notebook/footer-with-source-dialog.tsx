@@ -40,7 +40,7 @@ export default function FooterWithSourceDialog({
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
           addNote={addNote}
-          fileKey={currentFileKey}
+          fileKeys={currentFileKey ? [currentFileKey] : []}
         />
       </div>
     </footer>
