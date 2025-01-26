@@ -148,7 +148,7 @@ export async function POST(req: Request) {
       const queryEmbedding = await getEmbeddings("Generate multiple choice questions from this content");
       const queryResponse = await namespace.query({
         vector: queryEmbedding,
-        topK: 3, // Reduced from 5 to limit content
+        topK: 5, // Reduced from 5 to limit content
         includeMetadata: true,
       });
 
@@ -172,11 +172,11 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Format your response as a JSON object with a 'topics' array containing the topics."
+          content: "You are a helpful AI that identifies key topics from educational content. Extract 5 main topics or concepts that would be good for multiple choice questions. Format your response as a JSON object with a 'topics' array containing the topics."
         },
         {
           role: "user",
-          content: `Please identify 3 key topics from these documents and return them in JSON format:\n\n${allSummaries.join('\n\n')}`
+          content: `Please identify 5 key topics from these documents and return them in JSON format:\n\n${allSummaries.join('\n\n')}`
         }
       ],
       temperature: 0.3,
@@ -208,7 +208,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nYou must return your response in JSON format with this exact schema:
+          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 5 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nYou must return your response in JSON format with this exact schema:
 {
   "questions": [
     {
@@ -230,7 +230,7 @@ Guidelines for generating the JSON response:
         },
         {
           role: "user",
-          content: `Generate 3 MCQs from these documents and return them in JSON format:\n\n${allRelevantContent.join('\n\n')}`,
+          content: `Generate 5 MCQs from these documents and return them in JSON format:\n\n${allRelevantContent.join('\n\n')}`,
         },
       ],
       temperature: 0.3,
@@ -267,8 +267,8 @@ Guidelines for generating the JSON response:
         throw new Error("Questions must be an array");
       }
       
-      if (mcqData.questions.length !== 3) { // Changed to expect 3 questions
-        throw new Error(`Expected 3 questions but got ${mcqData.questions.length}`);
+      if (mcqData.questions.length !== 5) { // Changed to expect 5 questions
+        throw new Error(`Expected 5 questions but got ${mcqData.questions.length}`);
       }
 
       // Validate each question's structure

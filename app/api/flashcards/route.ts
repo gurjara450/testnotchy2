@@ -186,28 +186,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a helpful AI that creates educational flashcards. Create 5 flashcards from the given text, focusing on these topics:\n\n${topics}\n\nEach flashcard should have:
-1. A concise question/concept on the front
-2. A clear, detailed explanation on the back
-
-Format your response as a JSON array of objects with 'front' and 'back' properties.
-Example:
-[
-  {
-    "front": "What is photosynthesis?",
-    "back": "The process by which plants convert sunlight into energy, producing oxygen as a byproduct"
-  }
-]
-
-Guidelines:
-- Create EXACTLY 5 flashcards
-- Keep the front concise but clear
-- Make the back detailed but not too long
-- Cover different aspects of the content
-- Base all content strictly on the provided text
-- Ensure the response is valid JSON
-- Return ONLY the JSON array, no additional text or formatting
-- When relevant, mention which document the information comes from`
+          content: "You are a helpful AI that creates educational flashcards. Create 5 flashcards from the given text, focusing on these topics:\n\n${topics}\n\nRespond with a JSON object containing an array of flashcards. Each flashcard should have:\n1. A concise question/concept on the front\n2. A clear, detailed explanation on the back\n\nFormat your response as a JSON object with a 'flashcards' array containing objects with 'front' and 'back' properties.\nExample:\n{\n  \"flashcards\": [\n    {\n      \"front\": \"What is photosynthesis?\",\n      \"back\": \"The process by which plants convert sunlight into energy, producing oxygen as a byproduct\"\n    }\n  ]\n}\n\nGuidelines:\n- Create EXACTLY 5 flashcards\n- Keep the front concise but clear\n- Make the back detailed but not too long\n- Cover different aspects of the content\n- Base all content strictly on the provided text\n- Ensure the response is valid JSON\n- Return ONLY the JSON object, no additional text or formatting\n- When relevant, mention which document the information comes from"
         },
         {
           role: "user",
