@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Configuration, OpenAIApi } from "openai-edge";
+import { OpenAI } from "openai";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@pinecone-database/doc-splitter";
 import { downloadFromS3 } from "@/lib/s3-server";
@@ -11,11 +11,14 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-const config = new Configuration({
+// Change to Node.js runtime
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(config);
 
 export async function POST(req: Request) {
   const tempFiles: string[] = [];
@@ -144,8 +147,8 @@ export async function POST(req: Request) {
     }
 
     // First, get main topics from all content
-    const topicsResponse = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+    const topicsResponse = await openai.chat.completions.create({
+      model: "gpt-4-mini",
       messages: [
         {
           role: "system",
@@ -157,28 +160,29 @@ export async function POST(req: Request) {
         }
       ],
       temperature: 0.3,
+      response_format: { type: "json_object" },
     });
 
-    const topicsData = await topicsResponse.json();
+    const topicsContent = topicsResponse.choices[0].message.content;
     
-    if (!topicsData.choices?.[0]?.message?.content) {
-      console.error("Invalid topics response:", topicsData);
+    if (!topicsContent) {
+      console.error("Invalid topics response:", topicsResponse);
       return NextResponse.json(
         { 
           error: "Failed to identify topics",
           details: "Could not extract topics from the content",
-          raw_response: JSON.stringify(topicsData)
+          raw_response: JSON.stringify(topicsResponse)
         },
         { status: 500 }
       );
     }
     
-    const topics = topicsData.choices[0].message.content;
+    const topics = topicsContent;
     console.log("Identified topics for flashcards:", topics);
 
     // Generate flashcards using OpenAI with content from all sources
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-mini",
       messages: [
         {
           role: "system",
@@ -211,26 +215,28 @@ Guidelines:
         },
       ],
       temperature: 0.5,
+      response_format: { type: "json_object" },
+      max_tokens: 2000,
     });
 
-    const data = await response.json();
+    const content = response.choices[0].message.content;
     
     // Validate and parse the response
-    if (!data.choices?.[0]?.message?.content) {
-      console.error("Invalid OpenAI response:", data);
+    if (!content) {
+      console.error("Invalid OpenAI response:", response);
       return NextResponse.json(
         { 
           error: "Invalid response from OpenAI",
           details: "The API response did not contain the expected content",
-          raw_response: JSON.stringify(data)
+          raw_response: JSON.stringify(response)
         },
         { status: 500 }
       );
     }
 
     try {
-      console.log("Raw OpenAI response:", data.choices[0].message.content);
-      const flashcardsData = JSON.parse(data.choices[0].message.content.trim());
+      console.log("Raw OpenAI response:", content);
+      const flashcardsData = JSON.parse(content.trim());
       
       // Validate flashcard data structure
       if (!Array.isArray(flashcardsData)) {

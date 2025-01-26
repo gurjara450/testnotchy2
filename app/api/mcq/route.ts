@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { OpenAIApi, Configuration } from "openai-edge";
+import { OpenAI } from "openai";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@pinecone-database/doc-splitter";
 import { downloadFromS3 } from "@/lib/s3-server";
@@ -22,11 +22,14 @@ interface MCQResponse {
   questions: MCQOption[];
 }
 
-const config = new Configuration({
+// Change to Node.js runtime
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(config);
 
 export async function POST(req: Request) {
   const tempFiles: string[] = [];
@@ -155,8 +158,8 @@ export async function POST(req: Request) {
     }
 
     // First, get main topics from all content
-    const topicsResponse = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+    const topicsResponse = await openai.chat.completions.create({
+      model: "gpt-4-mini",
       messages: [
         {
           role: "system",
@@ -168,28 +171,29 @@ export async function POST(req: Request) {
         }
       ],
       temperature: 0.3,
+      response_format: { type: "json_object" },
     });
 
-    const topicsData = await topicsResponse.json();
+    const topicsContent = topicsResponse.choices[0].message.content;
     
-    if (!topicsData.choices?.[0]?.message?.content) {
-      console.error("Invalid topics response:", topicsData);
+    if (!topicsContent) {
+      console.error("Invalid topics response:", topicsResponse);
       return NextResponse.json(
         { 
           error: "Failed to identify topics",
           details: "Could not extract topics from the content",
-          raw_response: JSON.stringify(topicsData)
+          raw_response: JSON.stringify(topicsResponse)
         },
         { status: 500 }
       );
     }
     
-    const topics = topicsData.choices[0].message.content;
+    const topics = topicsContent;
     console.log("Identified topics for MCQs:", topics);
 
     // Generate MCQs using OpenAI with content from all sources
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-mini",
       messages: [
         {
           role: "system",
@@ -219,28 +223,29 @@ Your response must be a valid JSON string matching this exact format:
         },
       ],
       temperature: 0.3,
+      response_format: { type: "json_object" },
       max_tokens: 2500,
     });
 
-    const data = await response.json();
+    const content = response.choices[0].message.content;
     
     // Enhanced error handling and logging
-    if (!data.choices?.[0]?.message?.content) {
-      console.error("Invalid OpenAI response:", data);
+    if (!content) {
+      console.error("Invalid OpenAI response:", response);
       return NextResponse.json(
         { 
           error: "Invalid response from OpenAI",
           details: "The API response did not contain the expected content",
-          raw_response: JSON.stringify(data)
+          raw_response: JSON.stringify(response)
         },
         { status: 500 }
       );
     }
 
-    console.log("Raw OpenAI response:", data.choices[0].message.content);
+    console.log("Raw OpenAI response:", content);
 
     try {
-      const mcqData = JSON.parse(data.choices[0].message.content) as MCQResponse;
+      const mcqData = JSON.parse(content) as MCQResponse;
       
       // Validate MCQ data structure
       if (!mcqData.questions) {
