@@ -172,11 +172,11 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Return the response as a JSON array of topics."
+          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Format your response as a JSON object with a 'topics' array containing the topics."
         },
         {
           role: "user",
-          content: `Identify 3 key topics from these documents and return them as a JSON array:\n\n${allSummaries.join('\n\n')}`
+          content: `Please identify 3 key topics from these documents and return them in JSON format:\n\n${allSummaries.join('\n\n')}`
         }
       ],
       temperature: 0.3,
@@ -208,7 +208,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nReturn your response as a JSON object with this exact format:
+          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nYou must return your response in JSON format with this exact schema:
 {
   "questions": [
     {
@@ -226,11 +226,11 @@ Guidelines for generating the JSON response:
 3. Ensure only one option is correct
 4. Include a brief explanation for why the correct answer is right
 5. When relevant, mention which document the information comes from
-6. Ensure the response is valid JSON format`
+6. Your response must be a valid JSON object`
         },
         {
           role: "user",
-          content: `Generate 3 MCQs from these documents and return them in the specified JSON format:\n\n${allRelevantContent.join('\n\n')}`,
+          content: `Generate 3 MCQs from these documents and return them in JSON format:\n\n${allRelevantContent.join('\n\n')}`,
         },
       ],
       temperature: 0.3,
