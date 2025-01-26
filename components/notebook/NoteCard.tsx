@@ -17,6 +17,7 @@ type NoteCardProps = {
   onDelete: (id: number) => void;
   onPin: (id: number) => void;
   onPreview: (note: Note) => void;
+  onUpdateStyle?: (id: number, updates: Partial<Note>) => void;
 };
 
 const backgroundStyles = {
