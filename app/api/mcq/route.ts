@@ -168,19 +168,19 @@ export async function POST(req: Request) {
     console.log("Starting OpenAI topic extraction...");
     // First, get main topics from all content
     const topicsResponse = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Changed to 3.5-turbo for faster response
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Be brief and concise."
+          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Return the response as a JSON array of topics."
         },
         {
           role: "user",
-          content: `Identify 3 key topics from these documents:\n\n${allSummaries.join('\n\n')}`
+          content: `Identify 3 key topics from these documents and return them as a JSON array:\n\n${allSummaries.join('\n\n')}`
         }
       ],
       temperature: 0.3,
-      max_tokens: 150, // Reduced token limit
+      max_tokens: 150,
       response_format: { type: "json_object" },
     });
 
@@ -204,19 +204,11 @@ export async function POST(req: Request) {
     console.log("Starting MCQ generation...");
     // Generate MCQs using OpenAI with content from all sources
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Changed to 3.5-turbo for faster response
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nFor each question:
-
-1. The question should be clear and concise
-2. Provide exactly 4 options labeled as A, B, C, and D
-3. Ensure only one option is correct
-4. Include a brief explanation for why the correct answer is right
-5. When relevant, mention which document the information comes from
-
-Your response must be a valid JSON string matching this exact format:
+          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nReturn your response as a JSON object with this exact format:
 {
   "questions": [
     {
@@ -226,15 +218,23 @@ Your response must be a valid JSON string matching this exact format:
       "explanation": "Explanation here"
     }
   ]
-}`
+}
+
+Guidelines for generating the JSON response:
+1. Each question should be clear and concise
+2. Provide exactly 4 options labeled as A, B, C, and D
+3. Ensure only one option is correct
+4. Include a brief explanation for why the correct answer is right
+5. When relevant, mention which document the information comes from
+6. Ensure the response is valid JSON format`
         },
         {
           role: "user",
-          content: `Generate 3 MCQs from these documents:\n\n${allRelevantContent.join('\n\n')}`,
+          content: `Generate 3 MCQs from these documents and return them in the specified JSON format:\n\n${allRelevantContent.join('\n\n')}`,
         },
       ],
       temperature: 0.3,
-      max_tokens: 1000, // Reduced token limit
+      max_tokens: 1000,
       response_format: { type: "json_object" },
     });
 
