@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         const result = await db.insert(chats)
           .values({
             fileKey: fileKeysToProcess[0], // Use first file key as reference
-            pdfName: fileKeysToProcess.map(key => key.split('/').pop()).join(', '),
+            pdfName: fileKeysToProcess.map((key: string) => key.split('/').pop()).join(', '),
             pdfUrl: fileKeysToProcess[0],
             userId: '1',
             createdAt: new Date(),
