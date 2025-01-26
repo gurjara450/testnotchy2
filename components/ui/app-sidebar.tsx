@@ -4,7 +4,7 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarHeader,
-  } from "@/components/ui/sideba"
+  } from "@/components/ui/shadcnsidebar"
   
   export function AppSidebar() {
     return (
