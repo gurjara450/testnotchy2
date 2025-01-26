@@ -55,6 +55,8 @@ export async function POST(req: Request) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
+    console.log("Starting PDF processing...");
+    
     // Array to store all document chunks and summaries
     let allDocuments: Document[] = [];
     const allSummaries: string[] = [];
@@ -85,24 +87,28 @@ export async function POST(req: Request) {
         .filter(content => content.length > 0)
         .join("\n\n");
 
-      allSummaries.push(`Summary of ${fileKeyToUse.split('/').pop()}:\n${fullContent.slice(0, 500)}...`);
+      // Take a shorter summary to reduce processing time
+      allSummaries.push(`Summary of ${fileKeyToUse.split('/').pop()}:\n${fullContent.slice(0, 300)}...`);
 
-      // Split the text into chunks
+      // Split the text into smaller chunks with less overlap
       const splitter = new RecursiveCharacterTextSplitter({
-        chunkSize: 500,
-        chunkOverlap: 100,
+        chunkSize: 300,
+        chunkOverlap: 50,
       });
 
       const documents = await splitter.splitDocuments([
         new Document({ pageContent: fullContent, metadata: { source: fileKeyToUse } })
       ]);
 
-      allDocuments = [...allDocuments, ...documents];
+      // Limit the number of chunks per document to prevent timeouts
+      const maxChunks = 10;
+      allDocuments = [...allDocuments, ...documents.slice(0, maxChunks)];
     }
 
-    console.log("Total document chunks:", allDocuments.length);
+    console.log("Total document chunks (limited):", allDocuments.length);
 
     // Get embeddings for all chunks
+    console.log("Starting embeddings generation...");
     const vectors = await Promise.all(
       allDocuments.map(async (doc, index) => {
         const embedding = await getEmbeddings(doc.pageContent);
@@ -118,6 +124,7 @@ export async function POST(req: Request) {
     );
 
     // Store vectors in Pinecone
+    console.log("Storing vectors in Pinecone...");
     const client = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY!,
     });
@@ -133,6 +140,7 @@ export async function POST(req: Request) {
     }
 
     // Get relevant chunks from all sources
+    console.log("Retrieving relevant content...");
     const allRelevantContent: string[] = [];
 
     for (const fileKey of fileKeysToProcess) {
@@ -140,7 +148,7 @@ export async function POST(req: Request) {
       const queryEmbedding = await getEmbeddings("Generate multiple choice questions from this content");
       const queryResponse = await namespace.query({
         vector: queryEmbedding,
-        topK: 5,
+        topK: 3, // Reduced from 5 to limit content
         includeMetadata: true,
       });
 
@@ -157,20 +165,22 @@ export async function POST(req: Request) {
       allRelevantContent.push(...relevantContent);
     }
 
+    console.log("Starting OpenAI topic extraction...");
     // First, get main topics from all content
     const topicsResponse = await openai.chat.completions.create({
-      model: "gpt-4-mini",
+      model: "gpt-3.5-turbo", // Changed to 3.5-turbo for faster response
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that identifies key topics from educational content. Extract 5 main topics or concepts that would be good for multiple choice questions."
+          content: "You are a helpful AI that identifies key topics from educational content. Extract 3 main topics or concepts that would be good for multiple choice questions. Be brief and concise."
         },
         {
           role: "user",
-          content: `Identify 5 key topics from these documents:\n\n${allSummaries.join('\n\n')}`
+          content: `Identify 3 key topics from these documents:\n\n${allSummaries.join('\n\n')}`
         }
       ],
       temperature: 0.3,
+      max_tokens: 150, // Reduced token limit
       response_format: { type: "json_object" },
     });
 
@@ -191,13 +201,14 @@ export async function POST(req: Request) {
     const topics = topicsContent;
     console.log("Identified topics for MCQs:", topics);
 
+    console.log("Starting MCQ generation...");
     // Generate MCQs using OpenAI with content from all sources
     const response = await openai.chat.completions.create({
-      model: "gpt-4-mini",
+      model: "gpt-3.5-turbo", // Changed to 3.5-turbo for faster response
       messages: [
         {
           role: "system",
-          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 5 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nFor each question:
+          content: `You are a helpful AI that generates high-quality multiple choice questions. Generate EXACTLY 3 multiple choice questions based on the given content. Focus on these key topics:\n\n${topics}\n\nFor each question:
 
 1. The question should be clear and concise
 2. Provide exactly 4 options labeled as A, B, C, and D
@@ -219,12 +230,12 @@ Your response must be a valid JSON string matching this exact format:
         },
         {
           role: "user",
-          content: `Generate 5 MCQs from these documents:\n\n${allRelevantContent.join('\n\n')}`,
+          content: `Generate 3 MCQs from these documents:\n\n${allRelevantContent.join('\n\n')}`,
         },
       ],
       temperature: 0.3,
+      max_tokens: 1000, // Reduced token limit
       response_format: { type: "json_object" },
-      max_tokens: 2500,
     });
 
     const content = response.choices[0].message.content;
@@ -256,8 +267,8 @@ Your response must be a valid JSON string matching this exact format:
         throw new Error("Questions must be an array");
       }
       
-      if (mcqData.questions.length !== 5) {
-        throw new Error(`Expected 5 questions but got ${mcqData.questions.length}`);
+      if (mcqData.questions.length !== 3) { // Changed to expect 3 questions
+        throw new Error(`Expected 3 questions but got ${mcqData.questions.length}`);
       }
 
       // Validate each question's structure
