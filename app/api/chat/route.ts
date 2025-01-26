@@ -224,7 +224,9 @@ export async function POST(req: Request) {
 
       const relevantContent = queryResponse.matches
         .map(match => {
-          const source = match.metadata?.source?.split('/').pop() || 'Unknown';
+          const source = typeof match.metadata?.source === 'string' 
+            ? match.metadata.source.split('/').pop() 
+            : 'Unknown';
           const text = match.metadata?.text as string;
           return `[From ${source}]: ${text}`;
         })
