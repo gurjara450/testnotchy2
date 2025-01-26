@@ -145,7 +145,7 @@ export async function POST(req: Request) {
 
     // First, get main topics from all content
     const topicsResponse = await openai.createChatCompletion({
-      model: "gpt-4o-mini-2024-07-18",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -160,13 +160,25 @@ export async function POST(req: Request) {
     });
 
     const topicsData = await topicsResponse.json();
-    const topics = topicsData.choices?.[0]?.message?.content || "";
-
-    console.log("Identified topics for flashcards");
+    
+    if (!topicsData.choices?.[0]?.message?.content) {
+      console.error("Invalid topics response:", topicsData);
+      return NextResponse.json(
+        { 
+          error: "Failed to identify topics",
+          details: "Could not extract topics from the content",
+          raw_response: JSON.stringify(topicsData)
+        },
+        { status: 500 }
+      );
+    }
+    
+    const topics = topicsData.choices[0].message.content;
+    console.log("Identified topics for flashcards:", topics);
 
     // Generate flashcards using OpenAI with content from all sources
     const response = await openai.createChatCompletion({
-      model: "gpt-4o-mini-2024-07-18",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -205,7 +217,15 @@ Guidelines:
     
     // Validate and parse the response
     if (!data.choices?.[0]?.message?.content) {
-      throw new Error("Invalid response from OpenAI");
+      console.error("Invalid OpenAI response:", data);
+      return NextResponse.json(
+        { 
+          error: "Invalid response from OpenAI",
+          details: "The API response did not contain the expected content",
+          raw_response: JSON.stringify(data)
+        },
+        { status: 500 }
+      );
     }
 
     try {

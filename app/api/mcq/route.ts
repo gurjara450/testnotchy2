@@ -156,7 +156,7 @@ export async function POST(req: Request) {
 
     // First, get main topics from all content
     const topicsResponse = await openai.createChatCompletion({
-      model: "gpt-4o-mini",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -171,13 +171,25 @@ export async function POST(req: Request) {
     });
 
     const topicsData = await topicsResponse.json();
-    const topics = topicsData.choices?.[0]?.message?.content || "";
-
-    console.log("Identified topics for MCQs");
+    
+    if (!topicsData.choices?.[0]?.message?.content) {
+      console.error("Invalid topics response:", topicsData);
+      return NextResponse.json(
+        { 
+          error: "Failed to identify topics",
+          details: "Could not extract topics from the content",
+          raw_response: JSON.stringify(topicsData)
+        },
+        { status: 500 }
+      );
+    }
+    
+    const topics = topicsData.choices[0].message.content;
+    console.log("Identified topics for MCQs:", topics);
 
     // Generate MCQs using OpenAI with content from all sources
     const response = await openai.createChatCompletion({
-      model: "gpt-4o-mini-2024-07-18",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -215,7 +227,14 @@ Your response must be a valid JSON string matching this exact format:
     // Enhanced error handling and logging
     if (!data.choices?.[0]?.message?.content) {
       console.error("Invalid OpenAI response:", data);
-      throw new Error("Invalid response format from OpenAI");
+      return NextResponse.json(
+        { 
+          error: "Invalid response from OpenAI",
+          details: "The API response did not contain the expected content",
+          raw_response: JSON.stringify(data)
+        },
+        { status: 500 }
+      );
     }
 
     console.log("Raw OpenAI response:", data.choices[0].message.content);
