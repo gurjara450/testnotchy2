@@ -15,6 +15,20 @@
       "when": 1737893617742,
       "tag": "0001_lucky_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737894187571,
+      "tag": "0002_gifted_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1737894230385,
+      "tag": "0003_left_sugar_man",
+      "breakpoints": true
     }
   ]
 }

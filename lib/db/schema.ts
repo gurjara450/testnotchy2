@@ -119,6 +119,7 @@ export const notes = pgTable("notes", {
   lineHeight: integer("line_height"),
   letterSpacing: integer("letter_spacing"),
   textColor: text("text_color"),
+  images: jsonb("images").default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
