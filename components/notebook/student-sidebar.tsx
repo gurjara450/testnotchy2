@@ -301,7 +301,7 @@ export function StudentSidebar({ className, isFixed, onToggleFixed }: StudentSid
                             </Button>
                           </div>
                           <div className="relative">
-                            <WidgetComponent {...widgetInstance.props} />
+                            <WidgetComponent id={widgetInstance.id} {...widgetInstance.props} />
                           </div>
                         </motion.div>
                       )
