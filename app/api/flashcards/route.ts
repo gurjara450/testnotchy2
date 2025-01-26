@@ -148,7 +148,7 @@ export async function POST(req: Request) {
 
     // First, get main topics from all content
     const topicsResponse = await openai.chat.completions.create({
-      model: "gpt-4-mini",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
 
     // Generate flashcards using OpenAI with content from all sources
     const response = await openai.chat.completions.create({
-      model: "gpt-4-mini",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
