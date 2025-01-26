@@ -118,6 +118,7 @@ export const notes = pgTable("notes", {
   font: noteFontEnum("font").default("default").notNull(),
   lineHeight: integer("line_height"),
   letterSpacing: integer("letter_spacing"),
+  textColor: text("text_color"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
