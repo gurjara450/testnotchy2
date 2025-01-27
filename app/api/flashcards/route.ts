@@ -149,18 +149,17 @@ export async function POST(req: Request) {
     // First, get main topics from all content
     const topicsResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that identifies key topics from educational content. Extract 5 main topics or concepts that would be good for flashcards."
+          content: "You are a helpful AI that identifies key topics from educational content. Extract 5 main topics or concepts that would be good for flashcards. Return the response as a JSON object with a 'topics' array."
         },
         {
           role: "user",
-          content: `Identify 5 key topics from these documents:\n\n${allSummaries.join('\n\n')}`
+          content: `Please identify 5 key topics from these documents and return them as JSON:\n\n${allSummaries.join('\n\n')}`
         }
-      ],
-      temperature: 0.3,
-      response_format: { type: "json_object" },
+      ]
     });
 
     const topicsContent = topicsResponse.choices[0].message.content;
@@ -215,19 +214,21 @@ export async function POST(req: Request) {
 
     try {
       console.log("Raw OpenAI response:", content);
-      const flashcardsData = JSON.parse(content.trim());
+      const parsedResponse = JSON.parse(content.trim());
       
       // Validate flashcard data structure
-      if (!Array.isArray(flashcardsData)) {
-        throw new Error("Response must be an array");
+      if (!parsedResponse.flashcards || !Array.isArray(parsedResponse.flashcards)) {
+        throw new Error("Response must contain a flashcards array");
       }
+      
+      const flashcardsData = parsedResponse.flashcards;
       
       if (flashcardsData.length !== 5) {
         throw new Error(`Expected 5 flashcards but got ${flashcardsData.length}`);
       }
 
       // Validate each flashcard's structure
-      flashcardsData.forEach((card, index) => {
+      flashcardsData.forEach((card: { front: string; back: string }, index: number) => {
         if (!card.front || !card.back) {
           throw new Error(`Flashcard ${index + 1} is missing required fields`);
         }
