@@ -186,7 +186,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI that creates educational flashcards. Create 5 flashcards from the given text, focusing on these topics:\n\n${topics}\n\nYou must respond with a JSON object. Format your response as a JSON object with a 'flashcards' array containing objects with 'front' and 'back' properties.\nExample:\n{\n  \"flashcards\": [\n    {\n      \"front\": \"What is photosynthesis?\",\n      \"back\": \"The process by which plants convert sunlight into energy, producing oxygen as a byproduct\"\n    }\n  ]\n}\n\nGuidelines:\n- Create EXACTLY 5 flashcards\n- Keep the front concise but clear\n- Make the back detailed but not too long\n- Cover different aspects of the content\n- Base all content strictly on the provided text\n- Ensure the response is valid JSON\n- Return ONLY the JSON object, no additional text or formatting\n- When relevant, mention which document the information comes from"
+          content: `You are a helpful AI that creates educational flashcards. Your task is to respond with a JSON object containing 5 flashcards based on the provided content, focusing on these topics:\n${topics}\n\nThe JSON response should have this exact structure:\n{\n  \"flashcards\": [\n    {\n      \"front\": \"Question or concept\",\n      \"back\": \"Answer or explanation\"\n    }\n  ]\n}\n\nGuidelines:\n- Create EXACTLY 5 flashcards\n- Keep the front concise but clear\n- Make the back detailed but not too long\n- Cover different aspects of the content\n- Base all content strictly on the provided text\n- When relevant, mention which document the information comes from`
         },
         {
           role: "user",
